@@ -6,23 +6,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Getter
-@RequiredArgsConstructor
-public class TelnetConnector {
-    @Required
-    int terminalPort;
-    String searchMask;
-    int searchDepth;
+public class ClientParameters {
+    private String searchMask;
+    private int searchDepth;
 
-    public void terminalConnector(int terminalPort) throws IOException {
-        try (ServerSocket portSocket = new ServerSocket(terminalPort)) {
-            Socket socket = portSocket.accept();
+
+    public ClientParameters getClientParameters (Socket socket) throws IOException {
+        try {
             InputStream inputStream = socket.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
@@ -30,12 +26,14 @@ public class TelnetConnector {
             searchDepth = readSearchDepth(bufferedWriter, bufferedReader);
             writeToTerminal(bufferedWriter, "Please enter the search mask: ");
             searchMask = bufferedReader.readLine();
-            socket.close();
         } catch (IOException e) {
-            throw new IOException("Can't connect to port " + terminalPort, e);
+            log.error("Can't connect to socket {}", socket);
+            throw new IOException("Can't connect to socket " + socket, e);
         } catch (Exception e) {
+            log.error("Can't connect to socket {}", socket);
             throw new RuntimeException("Can't connect to terminal", e);
         }
+        return this;
     }
 
     public Integer readSearchDepth(BufferedWriter bufferedWriter,
