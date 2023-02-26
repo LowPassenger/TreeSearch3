@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) throws Exception {
         int terminalPort = 0;
         while (true) {
@@ -56,11 +57,6 @@ public class Main {
                     clientData.getSearchDepth());
             executorService.submit(output);
         }
-
-//        System.out.println("Root Path " + rootPath);
-//        System.out.println("Terminal port  " + terminalPort);
-//        System.out.println("Search Depth  " + searchDepth);
-//        System.out.println("Search Mask  " + searchMask);
     }
 
     private static String readLineFromKeyboard() {

@@ -16,8 +16,7 @@ public class ClientParameters {
     private String searchMask;
     private int searchDepth;
 
-
-    public ClientParameters getClientParameters (Socket socket) throws IOException {
+    public ClientParameters getClientParameters(Socket socket) throws IOException {
         try {
             InputStream inputStream = socket.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
