@@ -35,7 +35,14 @@ public class ClientParameters {
         return this;
     }
 
-    public Integer readSearchDepth(BufferedWriter bufferedWriter,
+    public void writeToTerminal(BufferedWriter bufferedWriter,
+                                String message) throws Exception {
+        bufferedWriter.write(message);
+        bufferedWriter.write(System.lineSeparator());
+        bufferedWriter.flush();
+    }
+
+    private Integer readSearchDepth(BufferedWriter bufferedWriter,
                                    BufferedReader bufferedReader) throws Exception {
         int searchDepth = 0;
         while (true) {
@@ -56,12 +63,5 @@ public class ClientParameters {
             }
         }
         return searchDepth;
-    }
-
-    private void writeToTerminal(BufferedWriter bufferedWriter,
-                                 String message) throws Exception {
-        bufferedWriter.write(message);
-        bufferedWriter.write(System.lineSeparator());
-        bufferedWriter.flush();
     }
 }

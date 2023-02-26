@@ -1,5 +1,8 @@
 package org.productenginetest;
 
+import java.io.BufferedWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -9,24 +12,33 @@ import lombok.extern.log4j.Log4j2;
 @AllArgsConstructor
 @Log4j2
 public class OutputThreads implements Callable<String> {
-    private ArrayList<ConcurrentSkipListSet<String>> fileTree;
-    private String searchMask;
-    private Integer searchDepth;
+    private FileTree fileTreeStorage;
+    private Socket socket;
 
     @Override
-    public String call() {
+    public String call() throws Exception {
+        ClientParameters clientParameters = new ClientParameters();
+        ClientParameters clientData = clientParameters.getClientParameters(socket);
+        if (clientData.getSearchDepth() > fileTreeStorage.getMaxDepth()) {
+            fileTreeStorage.setMaxDepth(clientData.getSearchDepth());
+        }
+        String searchMask = clientData.getSearchMask();
+        int searchDepth = clientData.getSearchDepth();
+        BufferedWriter bufferedWriter = new BufferedWriter(new PrintWriter(socket
+                .getOutputStream()));
         log.info("Output information process is started. Thread params: name {}",
                 Thread.currentThread().getName());
+        ArrayList<ConcurrentSkipListSet<String>> fileTree = fileTreeStorage.getFileTree();
         if (fileTree.size() == 1) {
-            System.out.println("Search results are: ");
+            clientParameters.writeToTerminal(bufferedWriter, "Search results are: ");
         }
-        for (int i = 0; i < searchDepth + 1; i++) {
-            ConcurrentSkipListSet<String> levelElements = fileTree.get(fileTree.size() - 1);
+        for (int i = 0; i < searchDepth; i++) {
+            ConcurrentSkipListSet<String> levelElements = fileTree.get(i);
             for (String element : levelElements) {
                 String[] filePath = element.split("/");
                 String globMask = maskCorrector(searchMask);
                 if ((filePath[filePath.length - 1]).matches(globMask)) {
-                    System.out.println(element);
+                    clientParameters.writeToTerminal(bufferedWriter, element);
                 }
             }
         }

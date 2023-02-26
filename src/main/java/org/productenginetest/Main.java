@@ -3,10 +3,8 @@ package org.productenginetest;
 import java.io.File;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.extern.log4j.Log4j2;
@@ -41,22 +39,23 @@ public class Main {
         }
         scanner.close();
 
-        ArrayList<ConcurrentSkipListSet<String>> fileTree = new FileTree().getFileTree();
-        Runnable treeTrackMan = new TreeTrackManThread(fileTree, rootPath);
+        FileTree fileTreeStorage = new FileTree();
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        Runnable treeTrackMan = new TreeTrackManThread(fileTreeStorage, executorService,
+                rootPath);
         Thread trackManThread = new Thread(treeTrackMan);
         trackManThread.start();
         log.info("Start Thread {}. Parameters: root path {}", trackManThread.getName(), rootPath);
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
         ServerSocket portSocket = new ServerSocket(terminalPort);
         while (!portSocket.isClosed()) {
             Socket socket = portSocket.accept();
-            ClientParameters clientParameters = new ClientParameters();
-            ClientParameters clientData = clientParameters.getClientParameters(socket);
-            Callable<String> output = new OutputThreads(fileTree, clientData.getSearchMask(),
-                    clientData.getSearchDepth());
+            Callable<String> output = new OutputThreads(fileTreeStorage, socket);
             executorService.submit(output);
+            log.info("Start new terminal thread {}", executorService.toString());
         }
+        executorService.shutdown();
+        log.info("Executor service is shut down");
     }
 
     private static String readLineFromKeyboard() {

@@ -2,12 +2,15 @@ package org.productenginetest;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentSkipListSet;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FileTree {
-    private final ArrayList<ConcurrentSkipListSet<String>> fileTree =
+    private ArrayList<ConcurrentSkipListSet<String>> fileTree =
             new ArrayList<>();
+    private int maxDepth;
 }
