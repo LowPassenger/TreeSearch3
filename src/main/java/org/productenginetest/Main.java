@@ -41,8 +41,7 @@ public class Main {
 
         FileTree fileTreeStorage = new FileTree();
         ExecutorService executorService = Executors.newCachedThreadPool();
-        Runnable treeTrackMan = new TreeTrackManThread(fileTreeStorage, executorService,
-                rootPath);
+        Runnable treeTrackMan = new TreeTrackManThread(fileTreeStorage, rootPath);
         Thread trackManThread = new Thread(treeTrackMan);
         trackManThread.start();
         log.info("Start Thread {}. Parameters: root path {}", trackManThread.getName(), rootPath);
@@ -50,7 +49,7 @@ public class Main {
         ServerSocket portSocket = new ServerSocket(terminalPort);
         while (!portSocket.isClosed()) {
             Socket socket = portSocket.accept();
-            Callable<String> output = new OutputThreads(fileTreeStorage, socket);
+            Callable<String> output = new OutputThreads(fileTreeStorage, socket, trackManThread);
             executorService.submit(output);
             log.info("Start new terminal thread {}", executorService.toString());
         }

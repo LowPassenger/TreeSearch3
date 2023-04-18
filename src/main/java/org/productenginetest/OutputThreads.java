@@ -14,14 +14,18 @@ import lombok.extern.log4j.Log4j2;
 public class OutputThreads implements Callable<String> {
     private FileTree fileTreeStorage;
     private Socket socket;
+    private Runnable task;
 
     @Override
     public String call() throws Exception {
+
         ClientParameters clientParameters = new ClientParameters();
         ClientParameters clientData = clientParameters.getClientParameters(socket);
         if (clientData.getSearchDepth() > fileTreeStorage.getMaxDepth()) {
             fileTreeStorage.setMaxDepth(clientData.getSearchDepth());
         }
+        Thread newThread = new Thread(task);
+        newThread.start();
         String searchMask = clientData.getSearchMask();
         int searchDepth = clientData.getSearchDepth();
         BufferedWriter bufferedWriter = new BufferedWriter(new PrintWriter(socket

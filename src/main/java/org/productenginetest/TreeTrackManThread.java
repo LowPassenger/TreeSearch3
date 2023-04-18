@@ -13,11 +13,10 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class TreeTrackManThread implements Runnable {
     private FileTree fileTreeStorage;
-    private final ExecutorService executorService;
+//    private final ExecutorService executorService;
     private String rootFolder;
 
     public void run() {
-        while (!executorService.isShutdown()) {
             ArrayList<ConcurrentSkipListSet<String>> fileTree = fileTreeStorage.getFileTree();
             int maxDepth = fileTreeStorage.getMaxDepth();
             log.info("Start File Tree Track process. Thread info: name {}",
@@ -57,7 +56,7 @@ public class TreeTrackManThread implements Runnable {
                 fileTree.add(levelElements);
                 fileTreeStorage.setFileTree(fileTree);
             }
-        }
+
         log.info("File Tree Tracking process is completed.");
     }
 }
